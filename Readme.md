@@ -6,8 +6,8 @@
 - [x] Install the following packages:
   - godotenv: [github.com/joho/godotenv](https://github.com/joho/godotenv)
 - [x] Initialize git and add a .gitignore file
-- [ ] Create a router and listen on it
-- [ ] Create some JSON helper functions like `respondWithJson`, `respondWithError`
+- [x] Create a router and listen on it
+- [x] Create some JSON helper functions like `respondWithJson`, `respondWithError`
 - [ ] Add a readiness handler to test the `respondWithJson` function
 - [ ] Add an error handler to test the `respondWithError` function
 - [ ] Build and test everything

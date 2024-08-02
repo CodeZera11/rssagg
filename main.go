@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -19,8 +20,16 @@ func main() {
 	port := os.Getenv("PORT")
 
 	if port == "" {
-		log.Fatal("Port not mentioned")
+		log.Fatal("Port not found: ", err)
 	}
 
-	fmt.Println("Hello world")
+	mux := http.NewServeMux()
+
+	server := &http.Server{
+		Addr:    ":" + port,
+		Handler: mux,
+	}
+
+	fmt.Println("Server listening on port: ", port)
+	log.Fatal(server.ListenAndServe())
 }
