@@ -8,6 +8,6 @@
 - [x] Initialize git and add a .gitignore file
 - [x] Create a router and listen on it
 - [x] Create some JSON helper functions like `respondWithJson`, `respondWithError`
-- [ ] Add a readiness handler to test the `respondWithJson` function
-- [ ] Add an error handler to test the `respondWithError` function
-- [ ] Build and test everything
+- [x] Add a readiness handler to test the `respondWithJson` function
+- [x] Add an error handler to test the `respondWithError` function
+- [x] Build and test everything
