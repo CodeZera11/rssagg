@@ -1,6 +1,6 @@
 # RSS Blog Aggregator
 
-## Basic HTTP Server Boilerplate Tasks
+## Ch-1 Boilerplate
 
 - [x] Initialize the project with hello world and Makefile
 - [x] Install the following packages:
@@ -11,3 +11,6 @@
 - [x] Add a readiness handler to test the `respondWithJson` function
 - [x] Add an error handler to test the `respondWithError` function
 - [x] Build and test everything
+
+
+## 

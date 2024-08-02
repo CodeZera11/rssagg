@@ -30,8 +30,8 @@ func main() {
 		Handler: mux,
 	}
 
-	mux.HandleFunc("/v1/healthz", handlerReadiness)
-	mux.HandleFunc("/v1/error", handlerError)
+	mux.HandleFunc("GET /v1/healthz", handlerReadiness)
+	mux.HandleFunc("GET /v1/error", handlerError)
 
 	fmt.Println("Server listening on port: ", port)
 	log.Fatal(server.ListenAndServe())
