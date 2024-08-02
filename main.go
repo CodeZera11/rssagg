@@ -1,13 +1,20 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/codezera11/rssagg/internal/database"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 
@@ -18,9 +25,28 @@ func main() {
 	}
 
 	port := os.Getenv("PORT")
+	dbUrl := os.Getenv("DATABASE_URL")
 
 	if port == "" {
-		log.Fatal("Port not found: ", err)
+		log.Fatal("Port not found:", err)
+	}
+
+	if dbUrl == "" {
+		log.Fatal("Database url not found:", err)
+	}
+
+	db, err := sql.Open("postgres", dbUrl)
+
+	if err != nil {
+		log.Fatal("Error opening connection to db: ", err)
+	}
+
+	defer db.Close()
+
+	dbQueries := database.New(db)
+
+	cfg := apiConfig{
+		DB: dbQueries,
 	}
 
 	mux := http.NewServeMux()
@@ -32,7 +58,8 @@ func main() {
 
 	mux.HandleFunc("GET /v1/healthz", handlerReadiness)
 	mux.HandleFunc("GET /v1/error", handlerError)
+	mux.HandleFunc("POST /v1/users", cfg.handlerCreateUser)
 
-	fmt.Println("Server listening on port: ", port)
+	fmt.Println("Server listening on port:", port)
 	log.Fatal(server.ListenAndServe())
 }
