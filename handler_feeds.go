@@ -16,6 +16,11 @@ func (cfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, 
 		Url  string `json:"url"`
 	}
 
+	type Response struct {
+		Feed       Feed      `json:"feed"`
+		FeedFollow UsersFeed `json:"feed_follow"`
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
 
@@ -39,11 +44,27 @@ func (cfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, 
 	feed, err := cfg.DB.CreateFeed(r.Context(), data)
 
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Error decoding params")
+		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, databaseFeedToFeed(feed))
+	followedFeed, err := cfg.DB.FollowFeed(r.Context(), database.FollowFeedParams{
+		ID:        uuid.New(),
+		FeedID:    feed.ID,
+		UserID:    user.ID,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	})
+
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusCreated, Response{
+		Feed:       databaseFeedToFeed(feed),
+		FeedFollow: databaseUsersFeedToUsersFeed(followedFeed),
+	})
 }
 
 func (cfg *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request) {
