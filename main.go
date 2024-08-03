@@ -59,6 +59,7 @@ func main() {
 	mux.HandleFunc("GET /v1/healthz", handlerReadiness)
 	mux.HandleFunc("GET /v1/error", handlerError)
 	mux.HandleFunc("POST /v1/users", cfg.handlerCreateUser)
+	mux.HandleFunc("GET /v1/users", cfg.handlerGetUser)
 
 	fmt.Println("Server listening on port:", port)
 	log.Fatal(server.ListenAndServe())
