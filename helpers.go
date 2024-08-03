@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
@@ -38,4 +40,20 @@ func respondWithError(w http.ResponseWriter, code int, msg string) {
 	}
 
 	w.Write(data)
+}
+
+func extractKeyFromHeader(h http.Header, key string) (string, error) {
+	val := h.Get("authorization")
+
+	if val == "" || len(val) < 2 {
+		return "", errors.New("key not found")
+	}
+
+	result := strings.Split(val, " ")
+
+	if result[0] != key {
+		return "", errors.New("incorrect key name")
+	}
+
+	return result[1], nil
 }

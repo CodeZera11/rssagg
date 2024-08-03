@@ -56,10 +56,17 @@ func main() {
 		Handler: mux,
 	}
 
+	// SERVER TESTS ENDPOINTS
 	mux.HandleFunc("GET /v1/healthz", handlerReadiness)
 	mux.HandleFunc("GET /v1/error", handlerError)
+
+	// USERS ENDPOINTS
 	mux.HandleFunc("POST /v1/users", cfg.handlerCreateUser)
-	mux.HandleFunc("GET /v1/users", cfg.handlerGetUser)
+	mux.HandleFunc("GET /v1/users", cfg.authMiddleware(cfg.handlerGetUser))
+
+	// FEEDS ENDPOINTS
+	mux.HandleFunc("POST /v1/feeds", cfg.authMiddleware(cfg.handlerCreateFeed))
+	mux.HandleFunc("GET /v1/feeds", cfg.handlerGetFeeds)
 
 	fmt.Println("Server listening on port:", port)
 	log.Fatal(server.ListenAndServe())
