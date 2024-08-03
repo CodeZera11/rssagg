@@ -67,6 +67,7 @@ func main() {
 	// FEEDS ENDPOINTS
 	mux.HandleFunc("POST /v1/feeds", cfg.authMiddleware(cfg.handlerCreateFeed))
 	mux.HandleFunc("GET /v1/feeds", cfg.handlerGetFeeds)
+	mux.HandleFunc("POST /v1/feed_follows", cfg.authMiddleware(cfg.handlerFeedFollow))
 
 	fmt.Println("Server listening on port:", port)
 	log.Fatal(server.ListenAndServe())
