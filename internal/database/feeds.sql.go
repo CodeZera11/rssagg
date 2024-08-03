@@ -48,6 +48,25 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 	return i, err
 }
 
+const deleteFollowFeed = `-- name: DeleteFollowFeed :one
+DELETE FROM users_feeds
+WHERE id = $1
+RETURNING id, user_id, feed_id, created_at, updated_at
+`
+
+func (q *Queries) DeleteFollowFeed(ctx context.Context, id uuid.UUID) (UsersFeed, error) {
+	row := q.db.QueryRowContext(ctx, deleteFollowFeed, id)
+	var i UsersFeed
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.FeedID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const followFeed = `-- name: FollowFeed :one
 INSERT INTO users_feeds(id, feed_id, user_id, created_at, updated_at)
 VALUES($1, $2, $3, $4, $5)
@@ -99,6 +118,40 @@ func (q *Queries) GetFeeds(ctx context.Context) ([]Feed, error) {
 			&i.Name,
 			&i.Url,
 			&i.UserID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFollowedFeeds = `-- name: GetFollowedFeeds :many
+SELECT id, user_id, feed_id, created_at, updated_at FROM users_feeds
+WHERE user_id = $1
+`
+
+func (q *Queries) GetFollowedFeeds(ctx context.Context, userID uuid.UUID) ([]UsersFeed, error) {
+	rows, err := q.db.QueryContext(ctx, getFollowedFeeds, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []UsersFeed
+	for rows.Next() {
+		var i UsersFeed
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.FeedID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {

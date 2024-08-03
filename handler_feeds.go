@@ -92,3 +92,33 @@ func (cfg *apiConfig) handlerFeedFollow(w http.ResponseWriter, r *http.Request, 
 
 	respondWithJSON(w, http.StatusCreated, databaseUsersFeedToUsersFeed(userFeed))
 }
+
+func (cfg *apiConfig) handlerUnfollowFeed(w http.ResponseWriter, r *http.Request) {
+	feedFollowId := r.PathValue("feedFollowID")
+
+	if feedFollowId == "" {
+		respondWithError(w, http.StatusInternalServerError, "Id not found!")
+		return
+	}
+
+	id := uuid.MustParse(feedFollowId)
+
+	userFeed, err := cfg.DB.DeleteFollowFeed(r.Context(), id)
+
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, databaseUsersFeedToUsersFeed(userFeed))
+}
+
+func (cfg *apiConfig) handlerGetFollowedFeeds(w http.ResponseWriter, r *http.Request, user database.User) {
+	followedFeeds, err := cfg.DB.GetFollowedFeeds(r.Context(), user.ID)
+
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+	}
+
+	respondWithJSON(w, http.StatusOK, followedFeeds)
+}
