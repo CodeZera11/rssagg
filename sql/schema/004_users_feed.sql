@@ -1,12 +1,11 @@
 -- +goose Up
 CREATE TABLE users_feeds (
   id UUID PRIMARY KEY,
-  user_id UUID NOT NULL,
-  feed_id UUID NOT NULL,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  feed_id UUID NOT NULL REFERENCES feeds(id) ON DELETE CASCADE,
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL,
-  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY(feed_id) REFERENCES feeds(id)
+  UNIQUE (user_id, feed_id)
 );
 
 -- +goose Down
