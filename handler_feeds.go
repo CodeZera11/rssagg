@@ -143,3 +143,4 @@ func (cfg *apiConfig) handlerGetFollowedFeeds(w http.ResponseWriter, r *http.Req
 
 	respondWithJSON(w, http.StatusOK, followedFeeds)
 }
+

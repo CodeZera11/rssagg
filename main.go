@@ -6,8 +6,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/codezera11/rssagg/internal/database"
+	"github.com/codezera11/rssagg/internal/feeds"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -72,6 +74,11 @@ func main() {
 	mux.HandleFunc("POST /v1/feed_follows", cfg.authMiddleware(cfg.handlerFeedFollow))
 	mux.HandleFunc("DELETE /v1/feed_follows/{feedFollowID}", cfg.handlerUnfollowFeed)
 	mux.HandleFunc("GET /v1/feed_follows", cfg.authMiddleware(cfg.handlerGetFollowedFeeds))
+
+	concurrency := 10
+	interval := time.Minute
+
+	go feeds.FeedScraper(dbQueries, concurrency, interval)
 
 	fmt.Println("Server listening on port:", port)
 	log.Fatal(server.ListenAndServe())
