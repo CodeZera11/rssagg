@@ -75,6 +75,9 @@ func main() {
 	mux.HandleFunc("DELETE /v1/feed_follows/{feedFollowID}", cfg.handlerUnfollowFeed)
 	mux.HandleFunc("GET /v1/feed_follows", cfg.authMiddleware(cfg.handlerGetFollowedFeeds))
 
+	// POSTS ENDPOINTS
+	mux.HandleFunc("GET /v1/posts", cfg.authMiddleware(cfg.handlerGetPostsByUser))
+
 	concurrency := 10
 	interval := time.Minute
 

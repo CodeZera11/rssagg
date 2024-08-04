@@ -141,6 +141,5 @@ func (cfg *apiConfig) handlerGetFollowedFeeds(w http.ResponseWriter, r *http.Req
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 	}
 
-	respondWithJSON(w, http.StatusOK, followedFeeds)
+	respondWithJSON(w, http.StatusOK, databaseUsersFeedsToUsersFeeds(followedFeeds))
 }
-

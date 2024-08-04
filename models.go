@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/codezera11/rssagg/internal/database"
@@ -61,4 +62,48 @@ func databaseUsersFeedToUsersFeed(usersFeed database.UsersFeed) UsersFeed {
 		CreatedAt: usersFeed.CreatedAt,
 		UpdatedAt: usersFeed.UpdatedAt,
 	}
+}
+
+func databaseUsersFeedsToUsersFeeds(dbUsersFeeds []database.UsersFeed) []UsersFeed {
+	usersFeeds := make([]UsersFeed, len(dbUsersFeeds))
+
+	for _, dbUserFeed := range dbUsersFeeds {
+		usersFeeds = append(usersFeeds, databaseUsersFeedToUsersFeed(dbUserFeed))
+	}
+
+	return usersFeeds
+}
+
+type Post struct {
+	ID          uuid.UUID      `json:"id"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	Title       string         `json:"title"`
+	Url         sql.NullString `json:"url"`
+	Description sql.NullString `json:"description"`
+	PublishedAt sql.NullTime   `json:"published_at"`
+	FeedID      uuid.UUID      `json:"feed_id"`
+}
+
+func databasePostToPost(post database.Post) Post {
+	return Post{
+		ID:          post.ID,
+		CreatedAt:   post.CreatedAt,
+		UpdatedAt:   post.UpdatedAt,
+		Title:       post.Title,
+		Url:         post.Url,
+		Description: post.Description,
+		PublishedAt: post.PublishedAt,
+		FeedID:      post.FeedID,
+	}
+}
+
+func databasePostsToPosts(dbPosts []database.Post) []Post {
+	posts := make([]Post, len(dbPosts))
+
+	for _, dbPost := range dbPosts {
+		posts = append(posts, Post(dbPost))
+	}
+
+	return posts
 }

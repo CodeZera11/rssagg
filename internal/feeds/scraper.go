@@ -2,6 +2,7 @@ package feeds
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
 	"fmt"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/codezera11/rssagg/internal/database"
+	"github.com/google/uuid"
 )
 
 func FeedScraper(dbQueries *database.Queries, concurrency int, interval time.Duration) {
@@ -67,7 +69,44 @@ func ScrapeFeed(dbQueries database.Queries, wg *sync.WaitGroup, feed database.Fe
 	}
 
 	for _, item := range rss.Channel.Items {
-		fmt.Println("Found post:", item.Title)
+		url := sql.NullString{
+			String: item.Link,
+			Valid:  item.Link != "",
+		}
+		desc := sql.NullString{
+			String: item.Description,
+			Valid:  item.Link != "",
+		}
+
+		formattedTime, err := time.Parse("Mon, 02 Jan 2006 15:04:05 -0700", item.PubDate)
+
+		if err != nil {
+			log.Println("Error converting time", err.Error())
+			continue
+		}
+
+		pubDate := sql.NullTime{
+			Time:  formattedTime,
+			Valid: item.PubDate != "",
+		}
+
+		data := database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			Title:       item.Title,
+			Description: desc,
+			Url:         url,
+			PublishedAt: pubDate,
+			FeedID:      feed.ID,
+			UserID:      feed.UserID,
+		}
+		post, err := dbQueries.CreatePost(context.Background(), data)
+		if err != nil {
+			log.Println(err.Error())
+		}
+
+		log.Printf("Post created with id: %v", post.ID)
 	}
 
 	_, err = dbQueries.MarkFeedFetched(context.Background(), feed.ID)
